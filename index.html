@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我们的爱情纪念册</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <!-- Leaflet.js for Interactive Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ff6b8b',
+                        secondary: '#a29bfe',
+                        accent: '#fd79a8',
+                        light: '#fce4ec',
+                        dark: '#6c5ce7'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            }
+            .text-gradient {
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+                background-image: linear-gradient(to right, #ff6b8b, #a29bfe);
+            }
+            .bg-blur {
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .card-hover {
+                transition: all 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px -5px rgba(255, 107, 139, 0.3);
+            }
+        }
+    </style>
+    <style>
+        /* Custom Styles */
+        body {
+            background-color: #fdf2f8;
+            overflow-x: hidden;
+        }
+        
+        .hero-bg {
+            background-image: url('https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/ed83345f2af24f08b5bf4c61b9eabecb~tplv-a9rns2rl98-image.image?rcl=20260104123604ACA97EF9E89A013263EE&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1770093401&x-signature=NnFNneVtn2pqx64xh1GdftBjYpo%3D');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .timeline-container {
+            position: relative;
+        }
+        
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background: linear-gradient(to bottom, #ff6b8b, #a29bfe);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+            border-radius: 4px;
+        }
+        
+        .timeline-item {
+            position: relative;
+            width: 50%;
+            padding: 10px 40px;
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #fff;
+            border: 4px solid #ff6b8b;
+            border-radius: 50%;
+            top: 15px;
+            z-index: 1;
+        }
+        
+        .timeline-left {
+            left: 0;
+        }
+        
+        .timeline-right {
+            left: 50%;
+        }
+        
+        .timeline-left::after {
+            right: -10px;
+        }
+        
+        .timeline-right::after {
+            left: -10px;
+        }
+        
+        .timeline-content {
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        @media screen and (max-width: 768px) {
+            .timeline-container::before {
+                left: 31px;
+            }
+            
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            
+            .timeline-left::after, .timeline-right::after {
+                left: 21px;
+            }
+            
+            .timeline-right {
+                left: 0;
+            }
+        }
+        
+        .music-player {
+            transition: all 0.3s ease;
+        }
+        
+        .music-player:hover {
+            transform: scale(1.05);
+        }
+        
+        .map-container {
+            height: 400px;
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .heart-animation {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background-color: #ff6b8b;
+            transform-origin: center;
+            animation: heartBeat 1.5s ease-in-out infinite;
+            clip-path: path('M25,2.5 C25,2.5 45,20 25,45 C5,20 5,2.5 5,2.5 C5,2.5 15,10 25,2.5 Z');
+        }
+        
+        @keyframes heartBeat {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            14% { transform: translate(-50%, -50%) scale(1.3); }
+            28% { transform: translate(-50%, -50%) scale(1); }
+            42% { transform: translate(-50%, -50%) scale(1.3); }
+            70% { transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        .memory-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .memory-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .memory-card img {
+            transition: all 0.5s ease;
+        }
+        
+        .memory-card:hover img {
+            transform: scale(1.05);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow: auto;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-content {
+            position: relative;
+            margin: 10% auto;
+            width: 80%;
+            max-width: 800px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .close-btn:hover {
+            color: #ff6b8b;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #ff6b8b;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: #ff6b8b;
+        }
+        
+        .countdown {
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
+            40% { transform: translateY(-20px) translateX(-50%); }
+            60% { transform: translateY(-10px) translateX(-50%); }
+        }
+    </style>
+</head>
+<body class="font-sans">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full bg-white bg-opacity-90 bg-blur z-50 shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-gradient">我们的纪念册</a>
+            <div class="hidden md:flex space-x-8">
+                <a href="#hero" class="nav-link active">首页</a>
+                <a href="#timeline" class="nav-link">爱情时间线</a>
+                <a href="#memories" class="nav-link">回忆墙</a>
+                <a href="#map" class="nav-link">旅行足迹</a>
+                <a href="#music" class="nav-link">音乐收藏</a>
+                <a href="#profile" class="nav-link">爱情档案</a>
+            </div>
+            <button id="mobile-menu-btn" class="md:hidden text-gray-600 focus:outline-none">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white shadow-lg absolute w-full">
+            <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
+                <a href="#hero" class="py-2 nav-link active">首页</a>
+                <a href="#timeline" class="py-2 nav-link">爱情时间线</a>
+                <a href="#memories" class="py-2 nav-link">回忆墙</a>
+                <a href="#map" class="py-2 nav-link">旅行足迹</a>
+                <a href="#music" class="py-2 nav-link">音乐收藏</a>
+                <a href="#profile" class="py-2 nav-link">爱情档案</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero-bg min-h-screen flex items-center justify-center relative pt-16">
+        <div class="absolute inset-0 bg-gradient-to-b from-primary/30 to-secondary/30"></div>
+        <div class="container mx-auto px-4 py-20 relative z-10 text-center">
+            <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 text-shadow animate-float">我们的爱情故事</h1>
+            <p class="text-xl md:text-2xl text-white mb-10 max-w-2xl mx-auto text-shadow">从相遇的那一刻起，我们的故事就开始了...</p>
+            <div class="flex justify-center items-center space-x-4 mb-12">
+                <div class="countdown bg-white/20 backdrop-blur-md rounded-lg p-4 w-20">
+                    <div id="days" class="text-3xl font-bold text-white">00</div>
+                    <div class="text-sm text-white">天</div>
+                </div>
+                <div class="countdown bg-white/20 backdrop-blur-md rounded-lg p-4 w-20">
+                    <div id="hours" class="text-3xl font-bold text-white">00</div>
+                    <div class="text-sm text-white">时</div>
+                </div>
+                <div class="countdown bg-white/20 backdrop-blur-md rounded-lg p-4 w-20">
+                    <div id="minutes" class="text-3xl font-bold text-white">00</div>
+                    <div class="text-sm text-white">分</div>
+                </div>
+                <div class="countdown bg-white/20 backdrop-blur-md rounded-lg p-4 w-20">
+                    <div id="seconds" class="text-3xl font-bold text-white">00</div>
+                    <div class="text-sm text-white">秒</div>
+                </div>
+            </div>
+            <p class="text-white text-lg mb-8">我们已经相爱 <span id="love-days" class="font-bold text-2xl">0</span> 天</p>
+            <a href="#timeline" class="bg-white text-primary hover:bg-primary hover:text-white transition-all duration-300 px-8 py-3 rounded-full font-bold shadow-lg transform hover:scale-105">
+                开始浏览我们的故事
+            </a>
+        </div>
+        <div class="scroll-indicator text-white">
+            <i class="fa fa-angle-down text-3xl"></i>
+        </div>
+    </section>
+
+    <!-- Timeline Section -->
+    <section id="timeline" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4 text-gradient">爱情时间线</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">记录我们从相遇、相知到相爱的每一个重要时刻</p>
+            </div>
+            <div class="timeline-container">
+                <div class="timeline-item timeline-left">
+                    <div class="timeline-content card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mr-4">
+                                <i class="fa fa-info-circle text-primary text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold">初闻其名</h3>
+                        </div>
+                        <p class="text-gray-600 mb-4">从公司HR口中得知，有个中文系产品妹子下个月要入职公司，中文系女生的书香蕴秀，不禁让人浮想联翩....</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">2019年4月17日</span>
+                            <button class="view-memory bg-primary/10 hover:bg-primary/20 text-primary px-4 py-2 rounded-full text-sm transition-all" data-id="0">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-item timeline-right">
+                    <div class="timeline-content card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mr-4">
+                                <i class="fa fa-heart text-primary text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold">初次见面</h3>
+                        </div>
+                        <p class="text-gray-600 mb-4">她就这样走入我生命中，似一阵微风穿过午后的长廊——没有惊动一粒尘埃，甚至未拂起一片叶的轻颤，甚至在几年之后回忆这次见面，都记不清当时的画面...</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">2019年5月6日</span>
+                            <button class="view-memory bg-primary/10 hover:bg-primary/20 text-primary px-4 py-2 rounded-full text-sm transition-all" data-id="1">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-item timeline-left">
+                    <div class="timeline-content card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center mr-4">
+                                <i class="fa fa-film text-secondary text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold">初次电影</h3>
+                        </div>
+                        <p class="text-gray-600 mb-4">我们一起看了人生中第一部电影，沉浸在剧情中，享受着彼此的陪伴。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">2023年4月23日</span>
+                            <button class="view-memory bg-secondary/10 hover:bg-secondary/20 text-secondary px-4 py-2 rounded-full text-sm transition-all" data-id="2">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-item timeline-right">
+                    <div class="timeline-content card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mr-4">
+                                <i class="fa fa-moon-o text-primary text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold">深夜聊天</h3>
+                        </div>
+                        <p class="text-gray-600 mb-4">深夜时分，我们聊了很久很久，分享彼此的心事和梦想。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">2023年5月12日</span>
+                            <button class="view-memory bg-primary/10 hover:bg-primary/20 text-primary px-4 py-2 rounded-full text-sm transition-all" data-id="3">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-item timeline-left">
+                    <div class="timeline-content card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mr-4">
+                                <i class="fa fa-cutlery text-accent text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold">初次聚餐</h3>
+                        </div>
+                        <p class="text-gray-600 mb-4">我们一起享用了美味的晚餐，笑声不断，度过了愉快的时光。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">2023年5月17日</span>
+                            <button class="view-memory bg-accent/10 hover:bg-accent/20 text-accent px-4 py-2 rounded-full text-sm transition-all" data-id="4">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-item timeline-right">
+                    <div class="timeline-content card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mr-4">
+                                <i class="fa fa-handshake-o text-primary text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold">第一次牵手</h3>
+                        </div>
+                        <p class="text-gray-600 mb-4">我们第一次牵手，心跳加速，仿佛整个世界都静止了。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">2023年6月16日</span>
+                            <button class="view-memory bg-primary/10 hover:bg-primary/20 text-primary px-4 py-2 rounded-full text-sm transition-all" data-id="5">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-item timeline-left">
+                    <div class="timeline-content card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center mr-4">
+                                <i class="fa fa-handshake-o text-secondary text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold">第一次牵手</h3>
+                        </div>
+                        <p class="text-gray-600 mb-4">我们再次牵手，感情更加深厚，彼此的心意更加明确。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">2023年7月16日</span>
+                            <button class="view-memory bg-secondary/10 hover:bg-secondary/20 text-secondary px-4 py-2 rounded-full text-sm transition-all" data-id="6">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-item timeline-right">
+                    <div class="timeline-content card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mr-4">
+                                <i class="fa fa-heart text-accent text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold">正式在一起</h3>
+                        </div>
+                        <p class="text-gray-600 mb-4">我们终于正式在一起了，开始了属于我们的爱情故事。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">2024年1月1日</span>
+                            <button class="view-memory bg-accent/10 hover:bg-accent/20 text-accent px-4 py-2 rounded-full text-sm transition-all" data-id="7">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-item timeline-left">
+                    <div class="timeline-content card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mr-4">
+                                <i class="fa fa-sun-o text-primary text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold">一起看日出</h3>
+                        </div>
+                        <p class="text-gray-600 mb-4">我们一起早起看日出，看着太阳缓缓升起，象征着我们的爱情充满希望。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">2024年3月15日</span>
+                            <button class="view-memory bg-primary/10 hover:bg-primary/20 text-primary px-4 py-2 rounded-full text-sm transition-all" data-id="8">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-item timeline-right">
+                    <div class="timeline-content card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center mr-4">
+                                <i class="fa fa-plane text-secondary text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold">一起旅行</h3>
+                        </div>
+                        <p class="text-gray-600 mb-4">我们一起去旅行，探索未知的地方，留下了美好的回忆。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">2024年5月1日</span>
+                            <button class="view-memory bg-secondary/10 hover:bg-secondary/20 text-secondary px-4 py-2 rounded-full text-sm transition-all" data-id="9">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Memories Section -->
+    <section id="memories" class="py-20 bg-gradient-to-b from-white to-light">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4 text-gradient">回忆墙</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">记录我们一起度过的美好时光</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Memory Card 1 -->
+                <div class="memory-card bg-white rounded-xl overflow-hidden shadow-lg">
+                    <div class="h-64 overflow-hidden">
+                        <img src="https://p26-doubao-search-sign.byteimg.com/labis/ec1d0180577a5fe7f453f786ef0df962~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1783053373&x-signature=UpcRnEYPYTel7QhBRFRGt6V04O0%3D" alt="浪漫时光" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xl font-bold">温馨时刻</h3>
+                            <span class="text-sm text-gray-500">2021年12月</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">在寒冷的冬日里，我们围坐在壁炉旁，享受着彼此的温暖...</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <i class="fa fa-map-marker text-primary mr-2"></i>
+                                <span class="text-sm text-gray-500">家里</span>
+                            </div>
+                            <button class="view-memory text-primary hover:text-primary/80 transition-all" data-id="8">
+                                <i class="fa fa-heart mr-1"></i> 查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Memory Card 2 -->
+                <div class="memory-card bg-white rounded-xl overflow-hidden shadow-lg">
+                    <div class="h-64 overflow-hidden">
+                        <img src="https://p11-doubao-search-sign.byteimg.com/labis/4a72fa908c299e268121f9d2314711f9~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1783053373&x-signature=3Cp5Wsh0fHDxxy%2F9CNJvIgLness%3D" alt="旅行照片" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xl font-bold">热气球之旅</h3>
+                            <span class="text-sm text-gray-500">2022年5月</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">我们一起乘坐热气球，俯瞰美丽的风景，那一刻仿佛触手可及天空...</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <i class="fa fa-map-marker text-primary mr-2"></i>
+                                <span class="text-sm text-gray-500">土耳其</span>
+                            </div>
+                            <button class="view-memory text-primary hover:text-primary/80 transition-all" data-id="9">
+                                <i class="fa fa-heart mr-1"></i> 查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Memory Card 3 -->
+                <div class="memory-card bg-white rounded-xl overflow-hidden shadow-lg">
+                    <div class="h-64 overflow-hidden">
+                        <img src="https://p3-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/1071316602172866630~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1783053373&x-signature=sqluklbSJWJu4GrPqjV88B0zdto%3D" alt="海滩漫步" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xl font-bold">海滩漫步</h3>
+                            <span class="text-sm text-gray-500">2022年7月</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">在夏日的海滩上，我们手牵手漫步，留下了一串串脚印和美好的回忆...</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <i class="fa fa-map-marker text-primary mr-2"></i>
+                                <span class="text-sm text-gray-500">马尔代夫</span>
+                            </div>
+                            <button class="view-memory text-primary hover:text-primary/80 transition-all" data-id="10">
+                                <i class="fa fa-heart mr-1"></i> 查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Memory Card 4 -->
+                <div class="memory-card bg-white rounded-xl overflow-hidden shadow-lg">
+                    <div class="h-64 overflow-hidden">
+                        <img src="https://p3-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/1014043041469038647~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1783053373&x-signature=C9wBi54PWMCoVjmVTTNwT3Mqvu8%3D" alt="情人节" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xl font-bold">情人节</h3>
+                            <span class="text-sm text-gray-500">2023年2月</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">在这个充满爱的日子里，我们互相表达了对彼此的爱意和感激...</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <i class="fa fa-map-marker text-primary mr-2"></i>
+                                <span class="text-sm text-gray-500">巴黎</span>
+                            </div>
+                            <button class="view-memory text-primary hover:text-primary/80 transition-all" data-id="11">
+                                <i class="fa fa-heart mr-1"></i> 查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Memory Card 5 -->
+                <div class="memory-card bg-white rounded-xl overflow-hidden shadow-lg">
+                    <div class="h-64 overflow-hidden">
+                        <img src="https://p26-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/916480273663524893~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1783053373&x-signature=w%2BsIIj3ZYUFM%2FrD5ipHZZBRxeZs%3D" alt="徒步旅行" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xl font-bold">徒步旅行</h3>
+                            <span class="text-sm text-gray-500">2023年6月</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">我们一起挑战高山，互相鼓励，最终到达山顶，欣赏到了最美的风景...</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <i class="fa fa-map-marker text-primary mr-2"></i>
+                                <span class="text-sm text-gray-500">瑞士</span>
+                            </div>
+                            <button class="view-memory text-primary hover:text-primary/80 transition-all" data-id="12">
+                                <i class="fa fa-heart mr-1"></i> 查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Memory Card 6 -->
+                <div class="memory-card bg-white rounded-xl overflow-hidden shadow-lg">
+                    <div class="h-64 overflow-hidden">
+                        <img src="https://p11-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/916886611929464832~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1783053373&x-signature=3fxcdXq9yMtmJjC5CCcvyNRJ7Pc%3D" alt="游艇之旅" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xl font-bold">游艇之旅</h3>
+                            <span class="text-sm text-gray-500">2023年8月</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">我们乘坐游艇在海上航行，享受阳光、海风和彼此的陪伴...</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <i class="fa fa-map-marker text-primary mr-2"></i>
+                                <span class="text-sm text-gray-500">希腊</span>
+                            </div>
+                            <button class="view-memory text-primary hover:text-primary/80 transition-all" data-id="13">
+                                <i class="fa fa-heart mr-1"></i> 查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-12">
+                <button id="add-memory-btn" class="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-full font-bold shadow-lg transform hover:scale-105 transition-all">
+                    <i class="fa fa-plus mr-2"></i> 添加新回忆
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section id="map" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4 text-gradient">旅行足迹</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">记录我们一起走过的地方</p>
+            </div>
+            <div class="map-container shadow-lg mb-8" id="travel-map"></div>
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 mt-12">
+                <div class="bg-light rounded-lg p-6 shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
+                            <i class="fa fa-plane text-primary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">旅行次数</h3>
+                    </div>
+                    <p class="text-3xl font-bold text-primary">12</p>
+                    <p class="text-gray-600 mt-2">一起探索的旅程</p>
+                </div>
+
+                <div class="bg-light rounded-lg p-6 shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center mr-3">
+                            <i class="fa fa-building text-accent"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">城市数量</h3>
+                    </div>
+                    <p class="text-3xl font-bold text-accent">15</p>
+                    <p class="text-gray-600 mt-2">一起探索的城市</p>
+                </div>
+                <div class="bg-light rounded-lg p-6 shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
+                            <i class="fa fa-calendar text-primary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">旅行天数</h3>
+                    </div>
+                    <p class="text-3xl font-bold text-primary">68</p>
+                    <p class="text-gray-600 mt-2">一起旅行的日子</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Music Section -->
+    <section id="music" class="py-20 bg-gradient-to-b from-white to-light">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4 text-gradient">音乐收藏馆</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">记录我们共同喜爱的歌曲</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Music Card 1 -->
+                <div class="music-player bg-white rounded-xl overflow-hidden shadow-lg p-6">
+                    <div class="flex items-center mb-6">
+                        <div class="w-20 h-20 rounded-lg overflow-hidden mr-4 shadow-md">
+                            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/c53a1220a5e94364ac496fb923d9b9ed~tplv-a9rns2rl98-image.image?rcl=20260104123604ACA97EF9E89A013263EE&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1770093400&x-signature=06%2B1a3SrPXDzJ9CkAZ3Dgs3Sfmo%3D" alt="歌曲封面" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">《我们的歌》</h3>
+                            <p class="text-gray-600">周杰伦</p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm text-gray-500 mb-1">
+                            <span>00:00</span>
+                            <span>03:30</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex space-x-4">
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-step-backward"></i>
+                            </button>
+                            <button class="play-btn w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/90 transition-all">
+                                <i class="fa fa-play"></i>
+                            </button>
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-step-forward"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-heart-o"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Music Card 2 -->
+                <div class="music-player bg-white rounded-xl overflow-hidden shadow-lg p-6">
+                    <div class="flex items-center mb-6">
+                        <div class="w-20 h-20 rounded-lg overflow-hidden mr-4 shadow-md">
+                            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/c53a1220a5e94364ac496fb923d9b9ed~tplv-a9rns2rl98-image.image?rcl=20260104123604ACA97EF9E89A013263EE&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1770093400&x-signature=06%2B1a3SrPXDzJ9CkAZ3Dgs3Sfmo%3D" alt="歌曲封面" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">《告白气球》</h3>
+                            <p class="text-gray-600">周杰伦</p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm text-gray-500 mb-1">
+                            <span>00:00</span>
+                            <span>03:35</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex space-x-4">
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-step-backward"></i>
+                            </button>
+                            <button class="play-btn w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/90 transition-all">
+                                <i class="fa fa-play"></i>
+                            </button>
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-step-forward"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-heart-o"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Music Card 3 -->
+                <div class="music-player bg-white rounded-xl overflow-hidden shadow-lg p-6">
+                    <div class="flex items-center mb-6">
+                        <div class="w-20 h-20 rounded-lg overflow-hidden mr-4 shadow-md">
+                            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/c53a1220a5e94364ac496fb923d9b9ed~tplv-a9rns2rl98-image.image?rcl=20260104123604ACA97EF9E89A013263EE&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1770093400&x-signature=06%2B1a3SrPXDzJ9CkAZ3Dgs3Sfmo%3D" alt="歌曲封面" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">《追光者》</h3>
+                            <p class="text-gray-600">岑宁儿</p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm text-gray-500 mb-1">
+                            <span>00:00</span>
+                            <span>04:00</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex space-x-4">
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-step-backward"></i>
+                            </button>
+                            <button class="play-btn w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/90 transition-all">
+                                <i class="fa fa-play"></i>
+                            </button>
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-step-forward"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-heart-o"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Music Card 4 -->
+                <div class="music-player bg-white rounded-xl overflow-hidden shadow-lg p-6">
+                    <div class="flex items-center mb-6">
+                        <div class="w-20 h-20 rounded-lg overflow-hidden mr-4 shadow-md">
+                            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/c53a1220a5e94364ac496fb923d9b9ed~tplv-a9rns2rl98-image.image?rcl=20260104123604ACA97EF9E89A013263EE&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1770093400&x-signature=06%2B1a3SrPXDzJ9CkAZ3Dgs3Sfmo%3D" alt="歌曲封面" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">《小幸运》</h3>
+                            <p class="text-gray-600">田馥甄</p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm text-gray-500 mb-1">
+                            <span>00:00</span>
+                            <span>03:50</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex space-x-4">
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-step-backward"></i>
+                            </button>
+                            <button class="play-btn w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/90 transition-all">
+                                <i class="fa fa-play"></i>
+                            </button>
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-step-forward"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-heart-o"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Music Card 5 -->
+                <div class="music-player bg-white rounded-xl overflow-hidden shadow-lg p-6">
+                    <div class="flex items-center mb-6">
+                        <div class="w-20 h-20 rounded-lg overflow-hidden mr-4 shadow-md">
+                            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/c53a1220a5e94364ac496fb923d9b9ed~tplv-a9rns2rl98-image.image?rcl=20260104123604ACA97EF9E89A013263EE&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1770093400&x-signature=06%2B1a3SrPXDzJ9CkAZ3Dgs3Sfmo%3D" alt="歌曲封面" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">《往后余生》</h3>
+                            <p class="text-gray-600">马良</p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm text-gray-500 mb-1">
+                            <span>00:00</span>
+                            <span>04:15</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex space-x-4">
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-step-backward"></i>
+                            </button>
+                            <button class="play-btn w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/90 transition-all">
+                                <i class="fa fa-play"></i>
+                            </button>
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-step-forward"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-heart-o"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Music Card 6 -->
+                <div class="music-player bg-white rounded-xl overflow-hidden shadow-lg p-6">
+                    <div class="flex items-center mb-6">
+                        <div class="w-20 h-20 rounded-lg overflow-hidden mr-4 shadow-md">
+                            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/c53a1220a5e94364ac496fb923d9b9ed~tplv-a9rns2rl98-image.image?rcl=20260104123604ACA97EF9E89A013263EE&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1770093400&x-signature=06%2B1a3SrPXDzJ9CkAZ3Dgs3Sfmo%3D" alt="歌曲封面" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">《我只在乎你》</h3>
+                            <p class="text-gray-600">邓丽君</p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm text-gray-500 mb-1">
+                            <span>00:00</span>
+                            <span>03:38</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex space-x-4">
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-step-backward"></i>
+                            </button>
+                            <button class="play-btn w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/90 transition-all">
+                                <i class="fa fa-play"></i>
+                            </button>
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-step-forward"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <button class="text-gray-500 hover:text-primary transition-all">
+                                <i class="fa fa-heart-o"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-12">
+                <button id="add-song-btn" class="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-full font-bold shadow-lg transform hover:scale-105 transition-all">
+                    <i class="fa fa-plus mr-2"></i> 添加新歌曲
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Profile Section -->
+    <section id="profile" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4 text-gradient">爱情档案</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">记录我们的基本信息和共同爱好</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- Couple Info -->
+                <div class="bg-light rounded-xl p-8 shadow-lg">
+                    <h3 class="text-2xl font-bold mb-6 text-center">我们的基本信息</h3>
+                    <div class="flex flex-col space-y-6">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">相识日期</span>
+                            <span class="font-bold">2020年3月15日</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">确定关系</span>
+                            <span class="font-bold">2023年4月23日</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">恋爱天数</span>
+                            <span class="font-bold" id="love-days-2">0 天</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Common Interests -->
+                <div class="bg-light rounded-xl p-8 shadow-lg">
+                    <h3 class="text-2xl font-bold mb-6 text-center">共同爱好</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
+                                <i class="fa fa-film text-primary"></i>
+                            </div>
+                            <span>看电影</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center mr-3">
+                                <i class="fa fa-book text-secondary"></i>
+                            </div>
+                            <span>阅读</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center mr-3">
+                                <i class="fa fa-plane text-accent"></i>
+                            </div>
+                            <span>旅行</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
+                                <i class="fa fa-cutlery text-primary"></i>
+                            </div>
+                            <span>美食</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center mr-3">
+                                <i class="fa fa-music text-secondary"></i>
+                            </div>
+                            <span>音乐</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center mr-3">
+                                <i class="fa fa-tree text-accent"></i>
+                            </div>
+                            <span>户外活动</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Love Story -->
+                <div class="bg-light rounded-xl p-8 shadow-lg md:col-span-2">
+                    <h3 class="text-2xl font-bold mb-6 text-center">我们的相遇故事</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">
+                        那是一个阳光明媚的下午，我在市中心的一家小咖啡店里看书。你推门而入，阳光洒在你的身上，仿佛整个世界都亮了起来。你走到吧台点了一杯拿铁，然后四处张望寻找座位。当你的目光落在我对面的空座位上时，我紧张地低下了头，但内心却希望你能坐在那里。
+                    </p>
+                    <p class="text-gray-600 leading-relaxed mb-6">
+                        也许是命运的安排，你真的向我走来，轻声问道："这个座位有人吗？"我摇摇头，你便坐了下来。我们开始了简单的交谈，发现彼此有很多共同的兴趣爱好。时间过得很快，当我们意识到的时候，咖啡店已经快要打烊了。我们交换了联系方式，约定下次再见面。
+                    </p>
+                    <p class="text-gray-600 leading-relaxed">
+                        从那以后，我们经常见面，一起看电影、吃饭、散步。我发现自己越来越喜欢你，你的笑容、你的声音、你的一切都让我着迷。终于，在一个浪漫的夜晚，我鼓起勇气向你表白，你害羞地点了点头，我们正式成为了恋人。
+                    </p>
+                </div>
+                
+                <!-- Future Plans -->
+                <div class="bg-light rounded-xl p-8 shadow-lg md:col-span-2">
+                    <h3 class="text-2xl font-bold mb-6 text-center">未来的计划</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-lg p-6 shadow-md">
+                            <div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+                                <i class="fa fa-heart text-primary text-2xl"></i>
+                            </div>
+                            <h4 class="text-xl font-bold text-center mb-3">陪伴生活</h4>
+                            <p class="text-gray-600 text-center">
+                                相互陪伴，共同成长，享受生活中的每一个美好瞬间。
+                            </p>
+                        </div>
+                        <div class="bg-white rounded-lg p-6 shadow-md">
+                            <div class="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center mx-auto mb-4">
+                                <i class="fa fa-map-marker text-secondary text-2xl"></i>
+                            </div>
+                            <h4 class="text-xl font-bold text-center mb-3">到处旅行</h4>
+                            <p class="text-gray-600 text-center">
+                                一起走遍天涯海角，留下我们的足迹，创造更多难忘的回忆。
+                            </p>
+                        </div>
+                        <div class="bg-white rounded-lg p-6 shadow-md">
+                            <div class="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center mx-auto mb-4">
+                                <i class="fa fa-briefcase text-accent text-2xl"></i>
+                            </div>
+                            <h4 class="text-xl font-bold text-center mb-3">一起创业</h4>
+                            <p class="text-gray-600 text-center">
+                                携手共进，开创属于我们的事业，实现共同的梦想。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gradient-to-r from-primary to-secondary text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <h2 class="text-3xl font-bold mb-2">我们的爱情纪念册</h2>
+                    <p class="text-white/80">记录我们的爱情故事，直到永远...</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="hover:text-white/80 transition-all">
+                        <i class="fa fa-heart text-2xl"></i>
+                    </a>
+                    <a href="#" class="hover:text-white/80 transition-all">
+                        <i class="fa fa-camera text-2xl"></i>
+                    </a>
+                    <a href="#" class="hover:text-white/80 transition-all">
+                        <i class="fa fa-music text-2xl"></i>
+                    </a>
+                    <a href="#" class="hover:text-white/80 transition-all">
+                        <i class="fa fa-globe text-2xl"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-white/20 mt-8 pt-8 text-center">
+                <p class="text-white/80">© 2025 我们的爱情纪念册 | 用爱创造，用心记录</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Memory Modal -->
+    <div id="memory-modal" class="modal">
+        <div class="modal-content bg-white rounded-xl overflow-hidden">
+            <span class="close-btn">&times;</span>
+            <div class="p-6">
+                <div id="modal-content">
+                    <!-- Content will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Memory Modal -->
+    <div id="add-memory-modal" class="modal">
+        <div class="modal-content bg-white rounded-xl overflow-hidden max-w-md mx-auto">
+            <span class="close-btn">&times;</span>
+            <div class="p-6">
+                <h3 class="text-2xl font-bold mb-6 text-center">添加新回忆</h3>
+                <form id="add-memory-form">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">标题</label>
+                        <input type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" placeholder="给回忆起个名字">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">日期</label>
+                        <input type="date" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">地点</label>
+                        <input type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" placeholder="在哪里发生的">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">描述</label>
+                        <textarea class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" rows="4" placeholder="详细描述这个回忆"></textarea>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">上传照片</label>
+                        <input type="file" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" accept="image/*">
+                    </div>
+                    <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-lg font-bold transition-all">
+                        保存回忆
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Song Modal -->
+    <div id="add-song-modal" class="modal">
+        <div class="modal-content bg-white rounded-xl overflow-hidden max-w-md mx-auto">
+            <span class="close-btn">&times;</span>
+            <div class="p-6">
+                <h3 class="text-2xl font-bold mb-6 text-center">添加新歌曲</h3>
+                <form id="add-song-form">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">歌曲名称</label>
+                        <input type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" placeholder="歌曲名称">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">歌手</label>
+                        <input type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" placeholder="歌手名称">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">特殊意义</label>
+                        <textarea class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" rows="3" placeholder="这首歌对我们有什么特殊意义"></textarea>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">上传封面</label>
+                        <input type="file" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" accept="image/*">
+                    </div>
+                    <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-lg font-bold transition-all">
+                        添加歌曲
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const memoryModal = document.getElementById('memory-modal');
+        const addMemoryModal = document.getElementById('add-memory-modal');
+        const addSongModal = document.getElementById('add-song-modal');
+        const addMemoryBtn = document.getElementById('add-memory-btn');
+        const addSongBtn = document.getElementById('add-song-btn');
+        const closeBtns = document.querySelectorAll('.close-btn');
+        const viewMemoryBtns = document.querySelectorAll('.view-memory');
+        const playBtns = document.querySelectorAll('.play-btn');
+        const addMemoryForm = document.getElementById('add-memory-form');
+        const addSongForm = document.getElementById('add-song-form');
+        
+        // Mobile Menu Toggle
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // Navigation Active State
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                mobileMenu.classList.add('hidden');
+            });
+        });
+        
+        // Smooth Scrolling for Navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Modal Functions
+        function openModal(modal) {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal(modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Memory Modal
+        viewMemoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const memoryId = btn.getAttribute('data-id');
+                // In a real app, you would fetch memory data from an API
+                // For this demo, we'll just show a simple message
+                const modalContent = document.getElementById('modal-content');
+                modalContent.innerHTML = `
+                    <h3 class="text-2xl font-bold mb-4">回忆详情</h3>
+                    <p class="text-gray-600 mb-6">这是ID为 ${memoryId} 的回忆详情。在实际应用中，这里会显示完整的回忆内容，包括更多照片、详细描述等。</p>
+                    <div class="flex justify-center">
+                        <img src="https://p3-doubao-search-sign.byteimg.com/labis/57fb4e30d9ebf109652b65c114507c41~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1783053373&x-signature=RXOTcbuyxKDuYpBz6fD%2Brd%2Bxens%3D" alt="回忆照片" class="rounded-lg max-w-full h-auto">
+                    </div>
+                `;
+                openModal(memoryModal);
+            });
+        });
+        
+        // Add Memory Modal
+        addMemoryBtn.addEventListener('click', () => {
+            openModal(addMemoryModal);
+        });
+        
+        // Add Song Modal
+        addSongBtn.addEventListener('click', () => {
+            openModal(addSongModal);
+        });
+        
+        // Close Modals
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                closeModal(memoryModal);
+                closeModal(addMemoryModal);
+                closeModal(addSongModal);
+            });
+        });
+        
+        // Close Modal on Outside Click
+        window.addEventListener('click', (e) => {
+            if (e.target === memoryModal) closeModal(memoryModal);
+            if (e.target === addMemoryModal) closeModal(addMemoryModal);
+            if (e.target === addSongModal) closeModal(addSongModal);
+        });
+        
+        // Music Player
+        playBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                if (icon.classList.contains('fa-play')) {
+                    icon.classList.remove('fa-play');
+                    icon.classList.add('fa-pause');
+                    // In a real app, you would start playing the audio here
+                } else {
+                    icon.classList.remove('fa-pause');
+                    icon.classList.add('fa-play');
+                    // In a real app, you would pause the audio here
+                }
+            });
+        });
+        
+        // Form Submissions
+        if (addMemoryForm) {
+            addMemoryForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                // In a real app, you would process the form data and save the memory
+                alert('回忆添加成功！');
+                closeModal(addMemoryModal);
+            });
+        }
+        
+        if (addSongForm) {
+            addSongForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                // In a real app, you would process the form data and save the song
+                alert('歌曲添加成功！');
+                closeModal(addSongModal);
+            });
+        }
+        
+        // Countdown Timer
+        function updateCountdown() {
+            const loveStartDate = new Date('2023-04-23T00:00:00').getTime();
+            const now = new Date().getTime();
+            const timeElapsed = now - loveStartDate;
+            
+            const days = Math.floor(timeElapsed / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeElapsed % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeElapsed % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeElapsed % (1000 * 60)) / 1000);
+            
+            document.getElementById('days').innerText = days.toString().padStart(2, '0');
+            document.getElementById('hours').innerText = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').innerText = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').innerText = seconds.toString().padStart(2, '0');
+            
+            document.getElementById('love-days').innerText = days;
+            document.getElementById('love-days-2').innerText = days + ' 天';
+            
+
+        }
+        
+        // Update countdown every second
+        setInterval(updateCountdown, 1000);
+        updateCountdown(); // Initial call
+        
+        // Initialize Map
+        function initMap() {
+            const map = L.map('travel-map').setView([30, 104], 4);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            // Travel locations
+            const locations = [
+                { name: '北京', lat: 39.9042, lng: 116.4074, date: '2020-10-01' },
+                { name: '上海', lat: 31.2304, lng: 121.4737, date: '2020-12-25' },
+                { name: '广州', lat: 23.1291, lng: 113.2644, date: '2021-02-14' },
+                { name: '成都', lat: 30.5728, lng: 104.0668, date: '2021-05-01' },
+                { name: '杭州', lat: 30.2741, lng: 120.1551, date: '2021-07-22' },
+                { name: '厦门', lat: 24.4798, lng: 118.0894, date: '2021-10-01' },
+                { name: '西安', lat: 34.3416, lng: 108.9398, date: '2022-01-01' },
+                { name: '三亚', lat: 18.2528, lng: 109.5119, date: '2022-02-14' },
+                { name: '东京', lat: 35.6762, lng: 139.6503, date: '2022-05-01' },
+                { name: '巴黎', lat: 48.8566, lng: 2.3522, date: '2023-02-14' },
+                { name: '瑞士', lat: 46.8182, lng: 8.2275, date: '2023-06-01' },
+                { name: '希腊', lat: 37.9838, lng: 23.7275, date: '2023-08-01' }
+            ];
+            
+            // Add markers to the map
+            locations.forEach(location => {
+                const marker = L.marker([location.lat, location.lng]).addTo(map);
+                marker.bindPopup(`
+                    <div class="p-2">
+                        <h3 class="font-bold">${location.name}</h3>
+                        <p class="text-sm">访问日期: ${location.date}</p>
+                    </div>
+                `);
+            });
+            
+            // Connect markers with a polyline
+            const latlngs = locations.map(location => [location.lat, location.lng]);
+            L.polyline(latlngs, {color: '#ff6b8b', weight: 3, opacity: 0.7}).addTo(map);
+        }
+        
+        // Initialize map when the page loads
+        window.addEventListener('load', initMap);
+        
+        // Scroll Animation
+        function handleScrollAnimation() {
+            const elements = document.querySelectorAll('.card-hover, .memory-card, .music-player');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (elementTop < windowHeight * 0.85) {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }
+            });
+        }
+        
+        // Set initial styles for animation
+        document.querySelectorAll('.card-hover, .memory-card, .music-player').forEach(element => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(20px)';
+            element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        });
+        
+        // Handle scroll events
+        window.addEventListener('scroll', handleScrollAnimation);
+        window.addEventListener('load', handleScrollAnimation);
+    </script>
+</body>
+</html>
