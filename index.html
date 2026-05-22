@@ -62,50 +62,41 @@
             width: 320px;
             text-align: center;
         }
-        .login-dots-wrap {
-            position: relative;
-            display: inline-block;
-            cursor: text;
-            padding: 20px 40px;
-        }
-        .login-dots {
-            display: flex;
-            justify-content: center;
-            gap: 14px;
-        }
-        .login-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            border: 1.5px solid #333;
-            transition: all 0.2s;
-        }
-        .login-dot.filled {
-            background: #c9a96e;
-            border-color: #c9a96e;
-        }
-        .login-line {
-            width: 200px;
-            height: 1px;
-            margin: 0 auto 1rem;
-            background: linear-gradient(90deg, transparent, #c9a96e, transparent);
-        }
         .login-input {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            z-index: 2;
-            font-size: 16px;
-            border: none;
+            width: 200px;
             background: transparent;
-            color: transparent;
-            caret-color: transparent;
+            border: none;
+            border-bottom: 1px solid #2a2a2a;
+            color: #e0e0e0;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.5rem;
+            padding: 0.75rem 0;
+            text-align: center;
+            letter-spacing: 12px;
+            outline: none;
+            transition: border-color 0.3s;
             -webkit-appearance: none;
             appearance: none;
-            outline: none;
+            border-radius: 0;
+        }
+        .login-input:focus { border-color: #c9a96e; }
+        .login-input::placeholder { color: #333; letter-spacing: 12px; }
+        .login-btn {
+            display: block;
+            margin: 1.5rem auto 0;
+            padding: 0.6rem 2.5rem;
+            background: transparent;
+            border: 1px solid #c9a96e;
+            color: #c9a96e;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 0.9rem;
+            letter-spacing: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .login-btn:hover, .login-btn:active {
+            background: #c9a96e;
+            color: #0a0a0a;
         }
         .login-error {
             color: #8a4a4a;
@@ -505,13 +496,8 @@
             <p class="font-display text-accent tracking-[6px] text-sm mb-2">LISA & ERIC</p>
             <div style="width:40px;height:1px;background:linear-gradient(90deg,transparent,#c9a96e,transparent);margin:1.5rem auto"></div>
             <p class="text-muted text-xs tracking-[3px] mb-8">请输入访问密码</p>
-            <div class="login-dots-wrap" id="login-dots-wrap">
-                <div class="login-dots" id="login-dots">
-                    <span class="login-dot"></span><span class="login-dot"></span><span class="login-dot"></span>
-                    <span class="login-dot"></span><span class="login-dot"></span><span class="login-dot"></span>
-                </div>
-                <input type="tel" id="login-pwd" autocomplete="off" maxlength="6" inputmode="numeric" class="login-input">
-            </div>
+            <input type="tel" id="login-pwd" placeholder="------" autocomplete="off" maxlength="6" inputmode="numeric" class="login-input">
+            <button id="login-btn" class="login-btn">进 入</button>
             <p class="login-error" id="login-error"></p>
         </div>
     </div>
@@ -964,52 +950,35 @@
 
         function setupLogin() {
             const pwdInput = document.getElementById('login-pwd');
+            const loginBtn = document.getElementById('login-btn');
             const errorEl = document.getElementById('login-error');
-            const dotsEl = document.getElementById('login-dots');
-            const dots = dotsEl.querySelectorAll('.login-dot');
-            let checking = false;
-            let poller = null;
-
-            function updateDots() {
-                const len = pwdInput.value.length;
-                dots.forEach((d, i) => d.classList.toggle('filled', i < len));
-            }
 
             async function tryLogin() {
-                const val = pwdInput.value.replace(/\D/g, '');
-                pwdInput.value = val;
-                if (!val) { checking = false; updateDots(); return; }
+                const val = pwdInput.value.trim();
+                if (!val) return;
                 const hash = await sha256(val);
                 if (hash === 'f4cd08638d1bf67e477af7c6bf8162e4023b14523e0e039f67e2cf999574ca00') {
-                    clearInterval(poller);
                     unlock();
                 } else {
                     errorEl.textContent = '密码不正确';
                     pwdInput.value = '';
-                    updateDots();
-                    checking = false;
-                    setTimeout(() => { errorEl.textContent = ''; }, 2000);
+                    pwdInput.style.borderColor = '#8a4a4a';
+                    loginBtn.style.borderColor = '#8a4a4a';
+                    loginBtn.style.color = '#8a4a4a';
+                    setTimeout(() => {
+                        pwdInput.style.borderColor = '';
+                        loginBtn.style.borderColor = '';
+                        loginBtn.style.color = '';
+                        errorEl.textContent = '';
+                    }, 2000);
                 }
             }
 
-            function checkAndLogin() {
-                updateDots();
-                if (pwdInput.value.length >= 6 && !checking) {
-                    checking = true;
-                    tryLogin();
-                }
-            }
-
-            pwdInput.addEventListener('input', checkAndLogin);
-            pwdInput.addEventListener('keyup', function(e) {
-                if (e.key === 'Enter') checkAndLogin();
+            loginBtn.addEventListener('click', tryLogin);
+            pwdInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') tryLogin();
             });
-            pwdInput.addEventListener('change', checkAndLogin);
-
-            poller = setInterval(checkAndLogin, 200);
-
-            document.getElementById('login-dots-wrap').addEventListener('click', function() { pwdInput.focus(); });
-            setTimeout(function() { pwdInput.focus(); }, 300);
+            pwdInput.focus();
         }
 
         // ========== Init All ==========
