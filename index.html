@@ -799,6 +799,8 @@
             L.polyline(latlngs, { color: '#c9a96e', weight: 1, opacity: 0.4, dashArray: '5,10' }).addTo(map);
         }
 
+        let ap = null;
+
         // ========== Music ==========
         async function initMusic() {
             const data = await loadData('music');
@@ -815,10 +817,10 @@
                 });
             }
 
-            const ap = new APlayer({
+            ap = new APlayer({
                 container: container,
                 theme: '#c9a96e',
-                autoplay: true,
+                autoplay: false,
                 order: 'list',
                 loop: 'all',
                 volume: 0.7,
@@ -895,6 +897,7 @@
             document.getElementById('login-gate').classList.add('hidden');
             document.body.classList.remove('locked');
             sessionStorage.setItem(LOGIN_KEY, '1');
+            setTimeout(() => { if (ap) ap.play(); }, 500);
         }
 
         function setupLogin() {
@@ -919,6 +922,8 @@
 
             if (sessionStorage.getItem(LOGIN_KEY) === '1') {
                 unlock();
+            } else {
+                pwdInput.focus();
             }
         }
 
