@@ -826,37 +826,20 @@
         let ap = null;
 
         // ========== Music ==========
-        const PLAYLIST_ID = '2210719803';
         const PLAYLIST_MAX = 80;
-        async function fetchPlaylist() {
-            const apiUrl = 'https://music.163.com/api/v6/playlist/detail?id=' + PLAYLIST_ID + '&n=100000';
-            const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
-            const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) });
-            const data = await resp.json();
-            return (data.playlist && data.playlist.tracks) || [];
-        }
-
         async function initMusic() {
             const container = document.getElementById('music-player');
             const audioList = [];
             let tracks = [];
 
-            try {
-                tracks = await fetchPlaylist();
-            } catch (e) {
-                try {
-                    const fallback = await loadData('music');
-                    tracks = fallback.map(item => ({ id: item.netease_id, name: item.name, artists: [{ name: item.artist }] }));
-                } catch (e2) {}
-            }
+            const data = await loadData('music');
+            tracks = data.slice(0, PLAYLIST_MAX);
 
-            const list = tracks.slice(0, PLAYLIST_MAX);
-            for (const t of list) {
-                const artists = (t.artists || []).map(a => a.name).join(' / ');
+            for (const item of tracks) {
                 audioList.push({
-                    name: t.name,
-                    artist: artists,
-                    url: 'https://music.163.com/song/media/outer/url?id=' + t.id + '.mp3',
+                    name: item.name,
+                    artist: item.artist,
+                    url: 'https://music.163.com/song/media/outer/url?id=' + item.netease_id + '.mp3',
                     theme: '#c9a96e'
                 });
             }
