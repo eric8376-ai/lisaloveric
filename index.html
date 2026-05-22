@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Lisa & Eric</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -59,25 +62,36 @@
             width: 320px;
             text-align: center;
         }
-        .login-input {
-            width: 200px;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid #2a2a2a;
-            color: #e0e0e0;
-            font-family: 'Noto Serif SC', serif;
-            font-size: 1.5rem;
-            padding: 0.75rem 0;
-            text-align: center;
-            letter-spacing: 12px;
-            outline: none;
-            transition: border-color 0.3s;
-            -webkit-appearance: none;
-            appearance: none;
-            border-radius: 0;
+        .login-dots {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 1rem;
         }
-        .login-input:focus { border-color: #c9a96e; }
-        .login-input::placeholder { color: #333; letter-spacing: 12px; }
+        .login-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1.5px solid #333;
+            transition: all 0.2s;
+        }
+        .login-dot.filled {
+            background: #c9a96e;
+            border-color: #c9a96e;
+        }
+        .login-line {
+            width: 200px;
+            height: 1px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(90deg, transparent, #c9a96e, transparent);
+        }
+        .login-input {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
         .login-error {
             color: #8a4a4a;
             font-size: 0.75rem;
@@ -476,7 +490,12 @@
             <p class="font-display text-accent tracking-[6px] text-sm mb-2">LISA & ERIC</p>
             <div style="width:40px;height:1px;background:linear-gradient(90deg,transparent,#c9a96e,transparent);margin:1.5rem auto"></div>
             <p class="text-muted text-xs tracking-[3px] mb-8">请输入访问密码</p>
-            <input type="password" id="login-pwd" placeholder="------" autocomplete="off" maxlength="6" inputmode="numeric" pattern="[0-9]*" class="login-input">
+            <div class="login-dots" id="login-dots">
+                <span class="login-dot"></span><span class="login-dot"></span><span class="login-dot"></span>
+                <span class="login-dot"></span><span class="login-dot"></span><span class="login-dot"></span>
+            </div>
+            <div class="login-line"></div>
+            <input type="tel" id="login-pwd" autocomplete="off" maxlength="6" inputmode="numeric" class="login-input">
             <p class="login-error" id="login-error"></p>
         </div>
     </div>
@@ -930,28 +949,41 @@
         function setupLogin() {
             const pwdInput = document.getElementById('login-pwd');
             const errorEl = document.getElementById('login-error');
+            const dotsEl = document.getElementById('login-dots');
+            const dots = dotsEl.querySelectorAll('.login-dot');
+            let checking = false;
+
+            function updateDots() {
+                const len = pwdInput.value.length;
+                dots.forEach((d, i) => d.classList.toggle('filled', i < len));
+                if (len >= 6 && !checking) {
+                    checking = true;
+                    tryLogin();
+                }
+            }
 
             async function tryLogin() {
-                const val = pwdInput.value.trim();
-                if (!val) return;
+                const val = pwdInput.value.replace(/\D/g, '');
+                pwdInput.value = val;
+                if (!val) { checking = false; return; }
                 const hash = await sha256(val);
                 if (hash === 'f4cd08638d1bf67e477af7c6bf8162e4023b14523e0e039f67e2cf999574ca00') {
                     unlock();
                 } else {
                     errorEl.textContent = '密码不正确';
                     pwdInput.value = '';
-                    pwdInput.style.borderColor = '#8a4a4a';
-                    setTimeout(() => { pwdInput.style.borderColor = ''; errorEl.textContent = ''; }, 2000);
+                    updateDots();
+                    checking = false;
+                    setTimeout(() => { errorEl.textContent = ''; }, 2000);
                 }
             }
 
-            function checkLogin() {
-                errorEl.textContent = '';
-                if (pwdInput.value.length >= 6) tryLogin();
-            }
-            pwdInput.addEventListener('input', checkLogin);
-            pwdInput.addEventListener('keyup', function(e) { if (e.key === 'Enter' || pwdInput.value.length >= 6) checkLogin(); });
-            pwdInput.addEventListener('change', checkLogin);
+            pwdInput.addEventListener('input', updateDots);
+            pwdInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') tryLogin();
+            });
+            dotsEl.addEventListener('click', function() { pwdInput.focus(); });
+            dotsEl.style.cursor = 'text';
             pwdInput.focus();
         }
 
