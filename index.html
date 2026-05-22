@@ -496,7 +496,7 @@
             <p class="font-display text-accent tracking-[6px] text-sm mb-2">LISA & ERIC</p>
             <div style="width:40px;height:1px;background:linear-gradient(90deg,transparent,#c9a96e,transparent);margin:1.5rem auto"></div>
             <p class="text-muted text-xs tracking-[3px] mb-8">请输入访问密码</p>
-            <input type="tel" id="login-pwd" placeholder="------" autocomplete="off" maxlength="6" inputmode="numeric" class="login-input">
+            <input type="password" id="login-pwd" placeholder="------" autocomplete="off" maxlength="6" inputmode="numeric" class="login-input">
             <button id="login-btn" class="login-btn">进 入</button>
             <p class="login-error" id="login-error"></p>
         </div>
@@ -982,11 +982,11 @@
         }
 
         // ========== Init All ==========
+        setupLogin();
         const aplayerScript = document.createElement('script');
         aplayerScript.src = 'https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js';
         aplayerScript.onload = function() {
             window.addEventListener('load', () => {
-                setupLogin();
                 initHitokoto();
                 initTimeline();
                 initMemories();
