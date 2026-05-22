@@ -953,24 +953,27 @@
             const loginBtn = document.getElementById('login-btn');
             const errorEl = document.getElementById('login-error');
 
-            async function tryLogin() {
-                const val = pwdInput.value.trim();
-                if (!val) return;
-                const hash = await sha256(val);
-                if (hash === 'f4cd08638d1bf67e477af7c6bf8162e4023b14523e0e039f67e2cf999574ca00') {
-                    unlock();
-                } else {
-                    errorEl.textContent = '密码不正确';
-                    pwdInput.value = '';
-                    pwdInput.style.borderColor = '#8a4a4a';
-                    loginBtn.style.borderColor = '#8a4a4a';
-                    loginBtn.style.color = '#8a4a4a';
-                    setTimeout(() => {
-                        pwdInput.style.borderColor = '';
-                        loginBtn.style.borderColor = '';
-                        loginBtn.style.color = '';
-                        errorEl.textContent = '';
-                    }, 2000);
+            function tryLogin() {
+                try {
+                    const val = pwdInput.value.trim();
+                    if (!val) return;
+                    if (val === '607038') {
+                        unlock();
+                    } else {
+                        errorEl.textContent = '密码不正确';
+                        pwdInput.value = '';
+                        pwdInput.style.borderColor = '#8a4a4a';
+                        loginBtn.style.borderColor = '#8a4a4a';
+                        loginBtn.style.color = '#8a4a4a';
+                        setTimeout(() => {
+                            pwdInput.style.borderColor = '';
+                            loginBtn.style.borderColor = '';
+                            loginBtn.style.color = '';
+                            errorEl.textContent = '';
+                        }, 2000);
+                    }
+                } catch (err) {
+                    errorEl.textContent = '错误: ' + err.message;
                 }
             }
 
