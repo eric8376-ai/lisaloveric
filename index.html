@@ -86,11 +86,13 @@
             background: linear-gradient(90deg, transparent, #c9a96e, transparent);
         }
         .login-input {
-            position: absolute;
-            opacity: 0;
+            position: fixed;
+            top: -100px;
+            left: -100px;
             width: 1px;
             height: 1px;
-            overflow: hidden;
+            opacity: 0.01;
+            font-size: 16px;
         }
         .login-error {
             color: #8a4a4a;
@@ -952,22 +954,20 @@
             const dotsEl = document.getElementById('login-dots');
             const dots = dotsEl.querySelectorAll('.login-dot');
             let checking = false;
+            let poller = null;
 
             function updateDots() {
                 const len = pwdInput.value.length;
                 dots.forEach((d, i) => d.classList.toggle('filled', i < len));
-                if (len >= 6 && !checking) {
-                    checking = true;
-                    tryLogin();
-                }
             }
 
             async function tryLogin() {
                 const val = pwdInput.value.replace(/\D/g, '');
                 pwdInput.value = val;
-                if (!val) { checking = false; return; }
+                if (!val) { checking = false; updateDots(); return; }
                 const hash = await sha256(val);
                 if (hash === 'f4cd08638d1bf67e477af7c6bf8162e4023b14523e0e039f67e2cf999574ca00') {
+                    clearInterval(poller);
                     unlock();
                 } else {
                     errorEl.textContent = '密码不正确';
@@ -978,13 +978,26 @@
                 }
             }
 
-            pwdInput.addEventListener('input', updateDots);
+            function checkAndLogin() {
+                updateDots();
+                if (pwdInput.value.length >= 6 && !checking) {
+                    checking = true;
+                    tryLogin();
+                }
+            }
+
+            pwdInput.addEventListener('input', checkAndLogin);
             pwdInput.addEventListener('keyup', function(e) {
-                if (e.key === 'Enter') tryLogin();
+                if (e.key === 'Enter') checkAndLogin();
             });
+            pwdInput.addEventListener('change', checkAndLogin);
+
+            poller = setInterval(checkAndLogin, 200);
+
             dotsEl.addEventListener('click', function() { pwdInput.focus(); });
             dotsEl.style.cursor = 'text';
-            pwdInput.focus();
+            document.querySelector('.login-box').addEventListener('click', function() { pwdInput.focus(); });
+            setTimeout(function() { pwdInput.focus(); }, 300);
         }
 
         // ========== Init All ==========
