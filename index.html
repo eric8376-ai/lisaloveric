@@ -72,7 +72,9 @@
             letter-spacing: 12px;
             outline: none;
             transition: border-color 0.3s;
-            -webkit-text-security: disc;
+            -webkit-appearance: none;
+            appearance: none;
+            border-radius: 0;
         }
         .login-input:focus { border-color: #c9a96e; }
         .login-input::placeholder { color: #333; letter-spacing: 12px; }
@@ -474,7 +476,7 @@
             <p class="font-display text-accent tracking-[6px] text-sm mb-2">LISA & ERIC</p>
             <div style="width:40px;height:1px;background:linear-gradient(90deg,transparent,#c9a96e,transparent);margin:1.5rem auto"></div>
             <p class="text-muted text-xs tracking-[3px] mb-8">请输入访问密码</p>
-            <input type="tel" id="login-pwd" placeholder="------" autocomplete="off" maxlength="6" class="login-input">
+            <input type="password" id="login-pwd" placeholder="------" autocomplete="off" maxlength="6" inputmode="numeric" pattern="[0-9]*" class="login-input">
             <p class="login-error" id="login-error"></p>
         </div>
     </div>
@@ -943,10 +945,13 @@
                 }
             }
 
-            pwdInput.addEventListener('input', () => {
+            function checkLogin() {
                 errorEl.textContent = '';
-                if (pwdInput.value.length === 6) tryLogin();
-            });
+                if (pwdInput.value.length >= 6) tryLogin();
+            }
+            pwdInput.addEventListener('input', checkLogin);
+            pwdInput.addEventListener('keyup', function(e) { if (e.key === 'Enter' || pwdInput.value.length >= 6) checkLogin(); });
+            pwdInput.addEventListener('change', checkLogin);
             pwdInput.focus();
         }
 
