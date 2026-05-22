@@ -1,0 +1,46 @@
+[
+  {
+    "title": "温馨时刻",
+    "date": "2021年12月",
+    "location": "厦门",
+    "image": "https://images.unsplash.com/photo-1529543544282-ea61407b75c2?w=600&q=80",
+    "text": "在寒冷的冬日里，我们围坐在一起，享受着彼此的温暖...",
+    "style": "tall"
+  },
+  {
+    "title": "海滩漫步",
+    "date": "2022年7月",
+    "location": "厦门",
+    "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80",
+    "text": "在夏日的海滩上，我们手牵手漫步，留下了一串串脚印和美好的回忆..."
+  },
+  {
+    "title": "徒步登山",
+    "date": "2023年5月",
+    "location": "厦门",
+    "image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80",
+    "text": "我们一起挑战高峰，互相鼓励，最终到达山顶，欣赏到了壮丽的景色。"
+  },
+  {
+    "title": "音乐会",
+    "date": "2024年1月",
+    "location": "厦门",
+    "image": "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&q=80",
+    "text": "我们一起欣赏了一场精彩的音乐会，沉浸在美妙的旋律中。"
+  },
+  {
+    "title": "旅行远方",
+    "date": "2024年4月",
+    "location": "厦门",
+    "image": "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=600&q=80",
+    "text": "一起走遍天涯海角，留下我们的足迹，创造更多难忘的回忆。",
+    "style": "wide"
+  },
+  {
+    "title": "星夜",
+    "date": "2024年2月",
+    "location": "厦门",
+    "image": "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&q=80",
+    "text": "仰望星空，数着繁星，那一刻时间仿佛凝固了。"
+  }
+]
