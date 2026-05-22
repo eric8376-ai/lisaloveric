@@ -82,6 +82,23 @@
             min-height: 1.2em;
             transition: opacity 0.3s;
         }
+        .login-btn {
+            margin-top: 1.5rem;
+            width: 100%;
+            padding: 0.75rem 0;
+            background: transparent;
+            border: 1px solid #2a2a2a;
+            color: #666;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 0.875rem;
+            letter-spacing: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .login-btn:hover, .login-btn:active {
+            border-color: #c9a96e;
+            color: #c9a96e;
+        }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #0a0a0a; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
@@ -473,8 +490,9 @@
             <p class="font-display text-accent tracking-[6px] text-sm mb-2">LISA & ERIC</p>
             <div style="width:40px;height:1px;background:linear-gradient(90deg,transparent,#c9a96e,transparent);margin:1.5rem auto"></div>
             <p class="text-muted text-xs tracking-[3px] mb-8">请输入访问密码</p>
-            <input type="password" id="login-pwd" placeholder="密码" autocomplete="off" autofocus>
+            <input type="password" id="login-pwd" placeholder="密码" autocomplete="off" enterkeyhint="done" autofocus>
             <p class="login-error" id="login-error"></p>
+            <button class="login-btn" id="login-btn">进入</button>
         </div>
     </div>
 
@@ -919,6 +937,7 @@
             }
 
             pwdInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+            document.getElementById('login-btn').addEventListener('click', tryLogin);
             pwdInput.focus();
         }
 
