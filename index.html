@@ -896,7 +896,7 @@
         function unlock() {
             document.getElementById('login-gate').classList.add('hidden');
             document.body.classList.remove('locked');
-            localStorage.setItem(LOGIN_KEY, '1');
+            sessionStorage.setItem(LOGIN_KEY, '1');
             setTimeout(() => { if (ap) ap.play(); }, 500);
         }
 
@@ -919,12 +919,7 @@
             }
 
             pwdInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
-
-            if (localStorage.getItem(LOGIN_KEY) === '1') {
-                unlock();
-            } else {
-                pwdInput.focus();
-            }
+            pwdInput.focus();
         }
 
         // ========== Init All ==========
