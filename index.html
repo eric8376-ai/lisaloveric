@@ -59,48 +59,23 @@
             width: 320px;
             text-align: center;
         }
-        .login-box input::placeholder { color: #333; letter-spacing: 2px; }
-        .login-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .login-row input {
-            flex: 1;
+        .login-input {
+            width: 200px;
             background: transparent;
             border: none;
             border-bottom: 1px solid #2a2a2a;
             color: #e0e0e0;
             font-family: 'Noto Serif SC', serif;
-            font-size: 1rem;
+            font-size: 1.5rem;
             padding: 0.75rem 0;
             text-align: center;
-            letter-spacing: 4px;
+            letter-spacing: 12px;
             outline: none;
             transition: border-color 0.3s;
-            min-width: 0;
+            -webkit-text-security: disc;
         }
-        .login-row input:focus { border-color: #c9a96e; }
-        .login-row input::placeholder { color: #333; letter-spacing: 2px; }
-        .login-submit {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            border: 1px solid #c9a96e;
-            background: transparent;
-            color: #c9a96e;
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: all 0.3s;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .login-submit:hover, .login-submit:active {
-            background: rgba(201, 169, 110, 0.1);
-        }
+        .login-input:focus { border-color: #c9a96e; }
+        .login-input::placeholder { color: #333; letter-spacing: 12px; }
         .login-error {
             color: #8a4a4a;
             font-size: 0.75rem;
@@ -499,10 +474,7 @@
             <p class="font-display text-accent tracking-[6px] text-sm mb-2">LISA & ERIC</p>
             <div style="width:40px;height:1px;background:linear-gradient(90deg,transparent,#c9a96e,transparent);margin:1.5rem auto"></div>
             <p class="text-muted text-xs tracking-[3px] mb-8">请输入访问密码</p>
-            <div class="login-row">
-                <input type="password" id="login-pwd" placeholder="密码" autocomplete="off" enterkeyhint="done" autofocus>
-                <button class="login-submit" id="login-btn" type="button"><i class="fa fa-arrow-right"></i></button>
-            </div>
+            <input type="tel" id="login-pwd" placeholder="------" autocomplete="off" maxlength="6" class="login-input">
             <p class="login-error" id="login-error"></p>
         </div>
     </div>
@@ -947,8 +919,10 @@
                 }
             }
 
-            pwdInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
-            document.getElementById('login-btn').addEventListener('click', tryLogin);
+            pwdInput.addEventListener('input', () => {
+                errorEl.textContent = '';
+                if (pwdInput.value.length === 6) tryLogin();
+            });
             pwdInput.focus();
         }
 
